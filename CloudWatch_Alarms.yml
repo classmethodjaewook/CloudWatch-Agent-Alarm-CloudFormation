@@ -1,0 +1,87 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Create CloudWatch Alarms
+
+Parameters:
+# Input Parameters
+  EC2InstanceId:
+    Description: "EC2 Instance id"
+    Type: AWS::EC2::Instance::Id
+  SNSTopicName:
+    Description: "SNS Topic Name of SNS arn"
+    Type: String
+    Default: arn:aws:sns:ap-northeast-1
+
+Resources:
+#  Create CloudWatch Alarms
+  CPUUtilizationAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - !Ref SNSTopicName
+      AlarmName: CPUUtilizationAlarm
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 80
+      OKActions:
+        - !Ref SNSTopicName
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: InstanceId
+          Value: !Ref EC2InstanceId
+  StatusCheckAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - !Ref SNSTopicName
+      AlarmName: StatusCheckAlarm
+      MetricName: StatusCheckFailed
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 0
+      OKActions:
+        - !Ref SNSTopicName
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: InstanceId
+          Value: !Ref EC2InstanceId
+  MemoryAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - !Ref SNSTopicName
+      AlarmName: MemoryAlarm
+      MetricName: Memory % Committed Bytes In Use
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 80
+      OKActions:
+        - !Ref SNSTopicName
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: InstanceId
+          Value: !Ref EC2InstanceId
+  DiskAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - !Ref SNSTopicName
+      AlarmName: DiskAlarm
+      MetricName: LogicalDisk % Free Space
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 80
+      OKActions:
+        - !Ref SNSTopicName
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: InstanceId
+          Value: !Ref EC2InstanceId
